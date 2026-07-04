@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Cloud Architecture Advisor</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="workspace">
+        <form id="advisor-form" class="panel input-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Architecture planner</p>
+              <h1>Cloud Architecture Advisor</h1>
+            </div>
+            <a class="docs-link" href="/docs">API Docs</a>
+          </div>
+
+          <label>
+            Project name
+            <input name="project_name" value="Demo Project" required />
+          </label>
+
+          <div class="grid two">
+            <label>
+              CPU cores
+              <input name="cpu" type="number" min="1" value="4" required />
+            </label>
+            <label>
+              RAM GB
+              <input name="ram_gb" type="number" min="1" value="16" required />
+            </label>
+          </div>
+
+          <div class="grid two">
+            <label>
+              Storage GB
+              <input name="storage_gb" type="number" min="1" value="250" required />
+            </label>
+            <label>
+              Daily users
+              <input name="daily_users" type="number" min="1" value="1000" required />
+            </label>
+          </div>
+
+          <label class="switch-row">
+            <span>
+              GPU required
+              <small>Training, inference, rendering, or accelerated processing</small>
+            </span>
+            <input name="gpu_required" type="checkbox" />
+          </label>
+
+          <div class="grid two">
+            <label>
+              Traffic
+              <select name="traffic_level">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+            <label>
+              Budget
+              <select name="budget">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="grid two">
+            <label>
+              Deployment
+              <select name="deployment_preference">
+                <option value="vm">VM</option>
+                <option value="container" selected>Container</option>
+                <option value="no_preference">No preference</option>
+              </select>
+            </label>
+            <label>
+              Availability
+              <select name="availability">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+          </div>
+
+          <button type="submit">Generate recommendation</button>
+        </form>
+
+        <section class="results">
+          <div class="panel summary-panel">
+            <p class="eyebrow">Recommendation</p>
+            <h2 id="result-title">Ready for a workload</h2>
+            <div class="metrics">
+              <div>
+                <span>Confidence</span>
+                <strong id="confidence">--</strong>
+              </div>
+              <div>
+                <span>Monthly cost</span>
+                <strong id="cost">--</strong>
+              </div>
+            </div>
+          </div>
+
+          <div id="architecture" class="architecture-list"></div>
+
+          <div class="panel">
+            <div class="section-heading">
+              <h2>Architecture Diagram</h2>
+              <button id="copy-diagram" type="button">Copy Mermaid</button>
+            </div>
+            <div id="diagram" class="diagram"></div>
+            <pre id="diagram-code"></pre>
+          </div>
+
+          <div class="panel">
+            <h2>Alternatives</h2>
+            <div id="alternatives" class="alternatives"></div>
+          </div>
+        </section>
+      </section>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>
