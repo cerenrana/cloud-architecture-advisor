@@ -16,18 +16,23 @@ def test_recommend_endpoint_returns_ok():
         "budget": "low",
         "deployment_preference": "no_preference",
         "availability": "low",
+        "preferred_provider": "gcp",
+        "region": "europe-west1",
     }
 
     response = client.post("/recommend", json=payload)
     assert response.status_code == 200
     data = response.json()
     assert data["project_name"] == "API Test"
+    assert data["provider"] == "gcp"
+    assert data["region"] == "europe-west1"
     assert "recommended_architecture" in data
     assert "compute" in data["recommended_architecture"]
     assert data["confidence_score"] > 0
     assert data["estimated_monthly_cost"]["min_usd"] > 0
     assert len(data["alternatives"]) == 3
     assert data["architecture_diagram"].startswith("flowchart LR")
+    assert data["recommended_architecture"]["compute"]["details"]["instance_type"].startswith("e2-")
 
 
 def test_home_page_serves_frontend():
@@ -42,7 +47,9 @@ def test_health_endpoint_returns_ok():
     response = client.get("/health")
 
     assert response.status_code == 200
-    assert response.json() == {"status": "ok"}
+    payload = response.json()
+    assert payload["status"] == "ok"
+    assert "environment" in payload
 
 
 def test_recommend_endpoint_rejects_invalid_payload():

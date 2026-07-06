@@ -25,6 +25,23 @@
 
           <div class="grid two">
             <label>
+              Provider
+              <select name="preferred_provider" id="provider-select">
+                <option value="generic">Generic</option>
+                <option value="aws" selected>AWS</option>
+                <option value="azure">Azure</option>
+                <option value="gcp">GCP</option>
+                <option value="huawei_cloud">Huawei Cloud</option>
+              </select>
+            </label>
+            <label>
+              Region
+              <select name="region" id="region-select"></select>
+            </label>
+          </div>
+
+          <div class="grid two">
+            <label>
               CPU cores
               <input name="cpu" type="number" min="1" value="4" required />
             </label>
@@ -99,6 +116,14 @@
             <p class="eyebrow">Recommendation</p>
             <h2 id="result-title">Ready for a workload</h2>
             <div class="metrics">
+              <div>
+                <span>Provider</span>
+                <strong id="provider">--</strong>
+              </div>
+              <div>
+                <span>Region</span>
+                <strong id="region">--</strong>
+              </div>
               <div>
                 <span>Confidence</span>
                 <strong id="confidence">--</strong>

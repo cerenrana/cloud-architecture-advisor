@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Dict, List
 
 
@@ -6,7 +6,7 @@ class Recommendation(BaseModel):
     recommendation: str
     reason: str
     tradeoffs: str
-    details: Dict[str, str] = {}
+    details: Dict[str, str] = Field(default_factory=dict)
 
 
 class ArchitectureRecommendation(BaseModel):
@@ -23,6 +23,14 @@ class CostEstimate(BaseModel):
     note: str
 
 
+class ScoreBreakdown(BaseModel):
+    cost: float
+    scalability: float
+    availability: float
+    complexity: float
+    performance: float
+
+
 class AlternativeArchitecture(BaseModel):
     name: str
     description: str
@@ -32,8 +40,16 @@ class AlternativeArchitecture(BaseModel):
 
 class RecommendationResponse(BaseModel):
     project_name: str
+    provider: str
+    region: str
     recommended_architecture: ArchitectureRecommendation
     confidence_score: float
+    score_breakdown: ScoreBreakdown
     estimated_monthly_cost: CostEstimate
     alternatives: List[AlternativeArchitecture]
     architecture_diagram: str
+    validation_notes: List[str]
+    security_recommendations: List[str]
+    compliance_checks: List[str]
+    disaster_recovery: List[str]
+    kubernetes_recommendations: List[str]

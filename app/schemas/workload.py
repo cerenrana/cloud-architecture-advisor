@@ -37,3 +37,16 @@ class WorkloadRequest(BaseModel):
         "medium",
         "high"
     ]
+
+    preferred_provider: Literal[
+        "generic",
+        "huawei_cloud",
+        "aws",
+        "azure",
+        "gcp",
+    ] = "generic"
+
+    region: str | None = Field(
+        default=None,
+        description="Target cloud region, such as us-east-1, eastus, europe-west1, or eu-west-101.",
+    )

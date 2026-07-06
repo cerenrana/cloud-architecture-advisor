@@ -1,5 +1,7 @@
 const form = document.querySelector("#advisor-form");
 const resultTitle = document.querySelector("#result-title");
+const providerMetric = document.querySelector("#provider");
+const regionMetric = document.querySelector("#region");
 const confidence = document.querySelector("#confidence");
 const cost = document.querySelector("#cost");
 const architecture = document.querySelector("#architecture");
@@ -7,6 +9,16 @@ const alternatives = document.querySelector("#alternatives");
 const diagram = document.querySelector("#diagram");
 const diagramCode = document.querySelector("#diagram-code");
 const copyDiagram = document.querySelector("#copy-diagram");
+const providerSelect = document.querySelector("#provider-select");
+const regionSelect = document.querySelector("#region-select");
+
+const regionsByProvider = {
+  generic: ["global"],
+  aws: ["us-east-1", "us-west-2", "eu-central-1", "eu-west-1"],
+  azure: ["eastus", "westus2", "westeurope", "northeurope"],
+  gcp: ["us-central1", "us-east1", "europe-west1", "europe-west4"],
+  huawei_cloud: ["eu-west-101", "ap-southeast-3", "la-south-2", "cn-north-4"],
+};
 
 const labels = {
   compute: "Compute",
@@ -30,7 +42,22 @@ function payloadFromForm() {
     budget: data.get("budget"),
     deployment_preference: data.get("deployment_preference"),
     availability: data.get("availability"),
+    preferred_provider: data.get("preferred_provider"),
+    region: data.get("region"),
   };
+}
+
+function syncRegionOptions() {
+  const provider = providerSelect.value;
+  const regions = regionsByProvider[provider] || regionsByProvider.generic;
+  regionSelect.innerHTML = "";
+
+  regions.forEach((region) => {
+    const option = document.createElement("option");
+    option.value = region;
+    option.textContent = region;
+    regionSelect.appendChild(option);
+  });
 }
 
 function renderArchitecture(items) {
@@ -44,6 +71,9 @@ function renderArchitecture(items) {
       <p>${value.recommendation}</p>
       <p>${value.reason}</p>
       <p class="tradeoff">${value.tradeoffs}</p>
+      <dl>${Object.entries(value.details || {})
+        .map(([detailKey, detailValue]) => `<div><dt>${detailKey.replaceAll("_", " ")}</dt><dd>${detailValue}</dd></div>`)
+        .join("")}</dl>
     `;
     architecture.appendChild(card);
   });
@@ -107,6 +137,8 @@ function renderAlternatives(items) {
 
 function renderResult(data) {
   resultTitle.textContent = data.project_name;
+  providerMetric.textContent = data.provider.replaceAll("_", " ");
+  regionMetric.textContent = data.region;
   confidence.textContent = `${Math.round(data.confidence_score * 100)}%`;
   cost.textContent = `$${data.estimated_monthly_cost.min_usd} - $${data.estimated_monthly_cost.max_usd}`;
   renderArchitecture(data.recommended_architecture);
@@ -141,6 +173,8 @@ form.addEventListener("submit", (event) => {
   });
 });
 
+providerSelect.addEventListener("change", syncRegionOptions);
+
 copyDiagram.addEventListener("click", async () => {
   await navigator.clipboard.writeText(diagramCode.textContent);
   copyDiagram.textContent = "Copied";
@@ -149,4 +183,5 @@ copyDiagram.addEventListener("click", async () => {
   }, 1200);
 });
 
+syncRegionOptions();
 generateRecommendation();

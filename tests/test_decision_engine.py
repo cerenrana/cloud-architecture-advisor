@@ -51,6 +51,65 @@ def test_decision_engine_uses_high_resource_compute_rule():
     assert result.recommended_architecture.compute.details["compute_type"] == "compute_optimized"
 
 
+def test_decision_engine_applies_provider_specific_details():
+    workload = WorkloadRequest(
+        project_name="Huawei Project",
+        cpu=8,
+        ram_gb=32,
+        gpu_required=False,
+        storage_gb=1000,
+        daily_users=5000,
+        traffic_level="high",
+        budget="high",
+        deployment_preference="container",
+        availability="high",
+        preferred_provider="huawei_cloud",
+        region="eu-west-101",
+    )
+
+    engine = DecisionEngine()
+    result = engine.generate(workload)
+
+    assert result.provider == "huawei_cloud"
+    assert result.region == "eu-west-101"
+    assert result.recommended_architecture.compute.details["instance_type"] == "c7.2xlarge.4"
+    assert "OBS" in result.recommended_architecture.storage.recommendation or "CCE" in result.recommended_architecture.deployment.recommendation
+    assert result.score_breakdown.scalability >= result.score_breakdown.complexity
+    assert any("availability" in note.lower() or "security" in note.lower() for note in result.validation_notes)
+
+
+def test_decision_engine_supports_aws_azure_gcp_and_region_fallbacks():
+    engine = DecisionEngine()
+
+    for provider, requested_region, expected_region in [
+        ("aws", "eu-central-1", "eu-central-1"),
+        ("azure", "westeurope", "westeurope"),
+        ("gcp", "invalid-region", "us-central1"),
+    ]:
+        workload = WorkloadRequest(
+            project_name=f"{provider} Project",
+            cpu=4,
+            ram_gb=16,
+            gpu_required=False,
+            storage_gb=1200,
+            daily_users=10000,
+            traffic_level="high",
+            budget="medium",
+            deployment_preference="container",
+            availability="high",
+            preferred_provider=provider,
+            region=requested_region,
+        )
+
+        result = engine.generate(workload)
+
+        assert result.provider == provider
+        assert result.region == expected_region
+        assert result.recommended_architecture.compute.details["instance_type"]
+        assert result.recommended_architecture.storage.details["database_service"]
+        assert result.recommended_architecture.deployment.details["service_family"]
+
+
 def test_decision_engine_estimates_higher_cost_for_gpu_high_availability():
     base_workload = WorkloadRequest(
         project_name="Base Project",
